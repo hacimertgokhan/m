@@ -25,18 +25,64 @@ pub fn lex(input: &str) -> Vec<Token> {
                 if i + 1 < chars.len() && chars[i + 1] == '=' {
                     tokens.push(Token::Equal);
                     i += 1;
+                } else {
+                    tokens.push(Token::Equal);
                 }
             }
             '{' => tokens.push(Token::LBrace),
             '}' => tokens.push(Token::RBrace),
+            '(' => tokens.push(Token::LParen),
+            ')' => tokens.push(Token::RParen),
+            ',' => tokens.push(Token::Comma),
             ' ' | '\n' => {}
+            '"' => {
+                i += 1;
+                let start = i;
+                while i < chars.len() && chars[i] != '"' {
+                    i += 1;
+                }
+                if i >= chars.len() {
+                    panic!("String bitmedi!");
+                }
+                let s: String = chars[start..i].iter().collect();
+                tokens.push(Token::String(s));
+                i += 1;
+                continue;
+            }
+            '\'' => {
+                if i + 2 < chars.len() && chars[i + 2] == '\'' {
+                    let c = chars[i + 1];
+                    tokens.push(Token::Char(c));
+                    i += 3;
+                    continue;
+                } else {
+                    panic!("Char literal hatalı!");
+                }
+            }
             _ => {
-                if input[i..].starts_with("if") {
+                if input[i..].starts_with("if") && (i + 2 == chars.len() || !chars[i + 2].is_alphanumeric()) {
                     tokens.push(Token::If);
                     i += 1;
-                } else if input[i..].starts_with("else") {
+                } else if input[i..].starts_with("else") && (i + 4 == chars.len() || !chars[i + 4].is_alphanumeric()) {
                     tokens.push(Token::Else);
                     i += 3;
+                } else if input[i..].starts_with("fn") && (i + 2 == chars.len() || !chars[i + 2].is_alphanumeric()) {
+                    tokens.push(Token::Fn);
+                    i += 1;
+                } else if input[i..].starts_with("let") && (i + 3 == chars.len() || !chars[i + 3].is_alphanumeric()) {
+                    tokens.push(Token::Let);
+                    i += 2;
+                } else if input[i..].starts_with("print") && (i + 5 == chars.len() || !chars[i + 5].is_alphanumeric()) {
+                    tokens.push(Token::Print);
+                    i += 4;
+                } else if chars[i].is_alphabetic() {
+                    let start = i;
+                    while i < chars.len() && (chars[i].is_alphanumeric() || chars[i] == '_') {
+                        i += 1;
+                    }
+                    let ident: String = chars[start..i].iter().collect();
+                    tokens.push(Token::Ident(ident));
+                    i -= 1;
                 } else {
                     panic!("unknow char: {}", chars[i]);
                 }

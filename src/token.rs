@@ -10,4 +10,13 @@ pub enum Token {
     Greater, // >
     Less,    // <
     Equal,   // ==
+    Fn,      // fn
+    Ident(String), // identifier
+    LParen,  // (
+    RParen,  // )
+    Comma,   // ,
+    Let,        // let
+    String(String), // "..."
+    Char(char),    // 'c'
+    Print,      // print
 }
